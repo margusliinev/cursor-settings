@@ -1,0 +1,389 @@
+---
+description: Rules for writing Next.js code
+globs: **/*.ts, **/*.tsx
+alwaysApply: false
+---
+
+# Next.js Rules
+
+## Code Organization and File Naming Conventions
+
+-   **`app/`**: App Router, contains Routing Files
+    -   `page.tsx`: Represents the UI for a route.
+    -   `layout.tsx`: Defines the layout for a route and its children.
+    -   `loading.tsx`: Displays a loading UI while a route segment is loading.
+    -   `error.tsx`: Handles errors within a route segment.
+    -   `route.ts`: Defines server-side route handlers (API routes).
+    -   `[dynamic-segment]`: Dynamic route segments, using brackets.
+-   **`lib/`**: Utility functions, helper functions, and third-party integrations.
+-   **`components/`**: Reusable UI components. (`ComponentName.tsx`)
+-   **`hooks/`**: Custom React hooks. (`useHookName.ts`)
+-   **`styles/`**: Global styles and CSS modules.
+-   **`public/`**: Static assets (images, fonts, etc.).
+-   **`types/`**: TypeScript type definitions and interfaces.
+
+## Routing Files with Examples
+
+### Creating a page for /blog (`app/blog/page.tsx`)
+
+```tsx
+export default function Page() {
+    return <h1>Blog</h1>;
+}
+```
+
+### Creating a layout for /blog (`app/blog/layout.tsx`)
+
+```tsx
+export default function Layout({ children }: { children: React.ReactNode }) {
+    return (
+        <div>
+            <Header />
+            <main>{children}</main>
+            <Footer />
+        </div>
+    );
+}
+```
+
+### Creating a loading state for /blog (`app/blog/loading.tsx`)
+
+```tsx
+export default function Loading() {
+    return (
+        <div>
+            <p>Loading blog content...</p>
+        </div>
+    );
+}
+```
+
+### Creating an error boundry for /blog (`app/blog/error.tsx`)
+
+```tsx
+'use client'; // Error boundaries must be Client Components
+
+export default function Error({ error, reset }: { error: Error; reset: () => void }) {
+    return (
+        <div>
+            <h2>Something went wrong loading the blog.</h2>
+            <button onClick={reset}>Try again</button>
+        </div>
+    );
+}
+```
+
+### Creating an API route for /blog (`app/blog/route.ts`)
+
+```tsx
+import { NextResponse } from 'next/server';
+
+export async function GET() {
+    const posts = [
+        { id: 1, title: 'Next.js App Router Guide' },
+        { id: 2, title: 'Optimizing with Server Components' },
+    ];
+
+    return NextResponse.json(posts);
+}
+
+export async function POST(request: Request) {
+    const data = await request.json();
+    return NextResponse.json({ message: 'Post created', data }, { status: 201 });
+}
+```
+
+### Creating a dynamic segment for /blog/slug (`app/blog/[slug]/page.tsx`)
+
+```tsx
+export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
+    const { slug } = await params;
+    const post = await getPost(slug);
+
+    return (
+        <div>
+            <h1>{post.title}</h1>
+            <p>{post.content}</p>
+        </div>
+    );
+}
+```
+
+## Images, Fonts and SEO
+
+-   **Image optimization:** Use `next/image` component for automatic image optimization.
+-   **Font optimization:** Use `next/font` to optimize font loading and prevent layout shift.
+-   **Metadata & SEO:** Use `Metadata` and `Viewport` objects for creating generating metadata.
+
+```tsx
+import Image from 'next/image';
+
+<Image src='/images/avatar.png' alt='User avatar' width={100} height={100} priority />;
+```
+
+```tsx
+import { Inter } from 'next/font/google';
+const inter = Inter({ subsets: ['latin'] });
+
+export default function Page() {
+    return <p className={inter.className}>Optimized text</p>;
+}
+```
+
+```tsx
+import type { Metadata, Viewport } from 'next';
+
+export const metadata: Metadata = {
+    title: 'My Blog',
+    description: 'My personal blog',
+    keywords: ['Blog', 'Personal'],
+};
+
+export const viewport: Viewport = {
+    colorScheme: 'light',
+    themeColor: '#ffffff',
+    width: 'device-width',
+    initialScale: 1,
+};
+
+// Can be added to either layout.tsx or page.tsx
+// export default function Layout() {}
+// export default function Page() {}
+```
+
+## Server Components VS Client Components
+
+-   **Server Components:** Render on the server, can directly access backend resources, reduce client bundle size.
+-   **Client Components:** Render on the client, use interactivity, React hooks, and browser APIs. Require `'use client'` directive.
+-   **When to use Server Components:** Data fetching, accessing backend resources or env variables, reducing bundle size.
+-   **When to use Client Components:** Interactivity (onClick, onChange), using hooks (useState, useEffect), using browser APIs.
+
+### Server Component example (`app/posts/page.tsx`)
+
+```tsx
+export default async function PostsPage() {
+    const posts = await fetch('https://api.example.com/posts', { cache: 'no-store' }).then((res) => res.json());
+
+    return (
+        <div>
+            <h1>Posts</h1>
+            {posts.map((post) => (
+                <article key={post.id}>
+                    <h2>{post.title}</h2>
+                    <p>{post.excerpt}</p>
+                </article>
+            ))}
+        </div>
+    );
+}
+```
+
+### Client Component example (`components/CommentForm.tsx`)
+
+```tsx
+'use client';
+
+import { useState } from 'react';
+
+export default function CommentForm({ postId }: { postId: string }) {
+    const [comment, setComment] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsSubmitting(true);
+
+        await fetch('/api/comments', {
+            method: 'POST',
+            body: JSON.stringify({ postId, comment }),
+        });
+
+        setComment('');
+        setIsSubmitting(false);
+    };
+
+    return (
+        <form onSubmit={handleSubmit}>
+            <textarea value={comment} onChange={(e) => setComment(e.target.value)} />
+            <button type='submit' disabled={isSubmitting}>
+                Submit
+            </button>
+        </form>
+    );
+}
+```
+
+### Combining Server and Client Components (`app/posts/[id]/page.tsx`)
+
+```tsx
+import CommentForm from '@/components/CommentForm';
+
+export default async function PostPage({ params }: { params: Promise<{ id: string }> }) {
+    const { id } = await params;
+    const post = await fetch(`https://api.example.com/posts/${id}`).then((res) => res.json());
+
+    return (
+        <article>
+            <h1>{post.title}</h1>
+            <p>{post.content}</p>
+
+            <CommentForm postId={id} />
+        </article>
+    );
+}
+```
+
+## Data Fetching
+
+-   **Server Components:** Use native `fetch` with caching and revalidation options.
+-   **Client Components:** Use React hooks or libraries like TanStack Query for client-side data fetching.
+-   **Parallel fetching:** Make multiple fetch requests in parallel for better performance.
+-   **Caching:** Use `next.revalidate` for time-based revalidation or `cache: 'no-store'` for dynamic data.
+
+### Static Rendering & Dynamic Rendering
+
+-   **Static Rendering:** HTML is generated at build time and the result is cached and shared across users and requests.
+-   **Dynamic Rendering:** HTML is generated at request time. This allows personalized content based on request-time data.
+
+-   A component becomes dynamic if it uses the following APIs:
+    -   cookies
+    -   headers
+    -   connection
+    -   draftMode
+    -   searchParams prop
+    -   unstable_noStore
+    -   fetch with { cache: 'no-store' }
+
+### Basic fetch in Server Component (`app/products/page.tsx`)
+
+```tsx
+export default async function ProductsPage() {
+    // Cached by default, HTML is generating at build time
+    const products = await fetch('https://api.example.com/products').then((res) => res.json());
+
+    return (
+        <div>
+            {products.map((product) => (
+                <div key={product.id}>{product.name}</div>
+            ))}
+        </div>
+    );
+}
+```
+
+### Dynamic data (no caching) in Server Component
+
+```tsx
+export default async function DashboardPage() {
+    // Always fetch fresh data because fetch with { cache: 'no-store' } is used.
+    const stats = await fetch('https://api.example.com/stats', { cache: 'no-store' }).then((res) => res.json());
+
+    return <div>Current users: {stats.activeUsers}</div>;
+}
+```
+
+### Parallel data fetching in Server Component
+
+```tsx
+export default async function DashboardPage() {
+    // Fetch multiple resources in parallel
+    const [user, posts, comments] = await Promise.all([
+        fetch('https://api.example.com/user').then((res) => res.json()),
+        fetch('https://api.example.com/posts').then((res) => res.json()),
+        fetch('https://api.example.com/comments').then((res) => res.json()),
+    ]);
+
+    return (
+        <div>
+            <h1>{user.name}</h1>
+            <p>{posts.length} posts</p>
+            <p>{comments.length} comments</p>
+        </div>
+    );
+}
+```
+
+### TanStack Query setup (`app/providers.tsx`)
+
+```tsx
+'use client';
+
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+const queryClient = new QueryClient();
+
+export default function Providers({ children }) {
+    return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
+}
+```
+
+### Using TanStack Query in Client Component (`components/UserProfile.tsx`)
+
+```tsx
+'use client';
+
+import { useQuery } from '@tanstack/react-query';
+
+export default function UserProfile({ userId }: { userId: string }) {
+    const { data, isLoading, error } = useQuery({
+        queryKey: ['user', userId],
+        queryFn: async () => {
+            const res = await fetch(`/api/users/${userId}`);
+            if (!res.ok) throw new Error('Failed to fetch user');
+            return res.json();
+        },
+    });
+
+    if (isLoading) return <div>Loading...</div>;
+    if (error) return <div>Error: {error.message}</div>;
+
+    return (
+        <div>
+            <h2>{data.name}</h2>
+            <p>{data.email}</p>
+        </div>
+    );
+}
+```
+
+### TanStack Query mutation example (`components/CreatePostForm.tsx`)
+
+```tsx
+'use client';
+
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
+
+export default function CreatePostForm() {
+    const [title, setTitle] = useState('');
+    const queryClient = useQueryClient();
+
+    const mutation = useMutation({
+        mutationFn: async (newPost: { title: string }) => {
+            const res = await fetch('/api/posts', {
+                method: 'POST',
+                body: JSON.stringify(newPost),
+            });
+            return res.json();
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['posts'] });
+            setTitle('');
+        },
+    });
+
+    return (
+        <form
+            onSubmit={(e) => {
+                e.preventDefault();
+                mutation.mutate({ title });
+            }}
+        >
+            <input value={title} onChange={(e) => setTitle(e.target.value)} />
+            <button type='submit' disabled={mutation.isPending}>
+                {mutation.isPending ? 'Creating...' : 'Create Post'}
+            </button>
+        </form>
+    );
+}
+```
