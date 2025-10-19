@@ -1,0 +1,409 @@
+---
+description: Rules for writing Svelte code
+globs: **/*.svelte
+alwaysApply: false
+---
+
+# Svelte Rules
+
+## Component Structure
+
+`.svelte` files are the foundation of Svelte applications, defining reusable components. They combine HTML markup, CSS styles, and JavaScript logic in a single file. Styles are scoped to the component by default.
+
+```svelte
+<script lang="ts">
+    // Logic
+    let name = $state('World');
+</script>
+
+<!-- Markup -->
+<h1>Hello, {name}!</h1>
+
+<style>
+    /* Styles - only affects <h1> elements in this component */
+    h1 {
+        color: blue;
+    }
+</style>
+```
+
+## Runes
+
+Runes are special symbols in Svelte 5 used to control the compiler and manage reactivity. Think of them as keywords built into the Svelte language. Unlike regular JavaScript functions, runes don't need to be imported and cannot be assigned to variables or passed as function arguments directly. They are used to declare reactive state, derived values, effects, and component props.
+
+### $state
+
+Variables created with `$state` automatically trigger UI updates whenever their value changes.
+
+```svelte
+<script lang="ts">
+    let count = $state(5);
+</script>
+
+<p>Count is {count}</p>
+```
+
+### $derived
+
+Variables created with `$derived` automatically update whenever their dependencies change.
+
+```svelte
+<script lang="ts">
+    let count = $state(5);
+    let doubled = $derived(count * 2);
+</script>
+
+<p>Count is {count}, doubled is {doubled}</p>
+```
+
+### $effect
+
+Effects run after the component is mounted and re-run whenever any reactive values they depend on change.
+
+```svelte
+<script lang="ts">
+    let count = $state(5);
+
+    $effect(() => {
+        console.log('Count changed:', count);
+    });
+</script>
+```
+
+### $inspect
+
+The `$inspect` rune is a debugging tool similar to `console.log`, but it automatically re-runs whenever its arguments change.
+
+```svelte
+<script lang="ts">
+    let count = $state(5);
+
+    // Logs count whenever it changes
+    $inspect(count);
+</script>
+```
+
+### $props
+
+The `$props` rune is used to access properties passed to a component from its parent.
+
+```svelte
+<script lang="ts">
+    let { name = 'John', age = 25 } = $props();
+</script>
+
+<p>Name: {name}, Age: {age}</p>
+```
+
+## Template Syntax
+
+Markup inside a Svelte component extends HTML, allowing you to embed JavaScript expressions and use special tags and directives.
+
+### Events
+
+Listen to DOM events by adding event attributes to elements.
+
+```svelte
+<script lang="ts">
+    let message = $state('Click me');
+
+    function handleClick() {
+        alert('Clicked!');
+    }
+</script>
+
+<button onclick={handleClick}>{message}</button>
+```
+
+### Conditional Rendering
+
+#### {#if ...}
+
+Conditionally render content using if/else if/else blocks.
+
+```svelte
+<script lang="ts">
+    let number = $state(3);
+</script>
+
+{#if number === 1}
+    <p>Number is 1</p>
+{:else if number === 2}
+    <p>Number is 2</p>
+{:else}
+    <p>Number is 3</p>
+{/if}
+```
+
+#### {#key ...}
+
+Key blocks destroy and recreate their contents when the value of an expression changes. When used around components, this causes them to be reinstantiated and reinitialized.
+
+```svelte
+<script lang="ts">
+    let value = $state(true);
+</script>
+
+{#key value}
+    <Component />
+{/key}
+```
+
+### Lists
+
+#### {#each ...}
+
+Iterate over arrays, array-like objects (anything with a length property), or iterables like Map and Set.
+
+```svelte
+<script lang="ts">
+    let items = $state(['Apple', 'Banana', 'Cherry']);
+</script>
+
+<ul>
+    {#each items as item, index (item)}
+        <li>{index + 1}: {item}</li>
+    {/each}
+</ul>
+```
+
+### Async Handling
+
+#### {#await ...}
+
+Await blocks allow you to branch on the three possible states of a Promise: pending, fulfilled, or rejected.
+
+```svelte
+<script lang="ts">
+    let promise = fetchData();
+</script>
+
+{#await promise}
+    <p>Loading...</p>
+{:then data}
+    <p>Data: {data}</p>
+{:catch error}
+    <p>Error: {error.message}</p>
+{/await}
+```
+
+### Snippets & Rendering
+
+#### {#snippet ...}
+
+Snippets are reusable chunks of markup inside your components.
+
+```svelte
+<script lang="ts">
+    let images = $state([
+        {
+            src: '/images/apple.jpg',
+            caption: 'A fresh apple',
+            width: 300,
+            height: 200,
+            href: 'https://en.wikipedia.org/wiki/Apple'
+        },
+        {
+            src: '/images/banana.jpg',
+            caption: 'A ripe banana',
+            width: 300,
+            height: 200,
+            href: 'https://en.wikipedia.org/wiki/Banana'
+        },
+        {
+            src: '/images/cherry.jpg',
+            caption: 'Sweet cherries',
+            width: 300,
+            height: 200,
+            href: null
+        }
+    ]);
+</script>
+
+{#snippet figure(image)}
+    <figure>
+        <img src={image.src} alt={image.caption} width={image.width} height={image.height} />
+        <figcaption>{image.caption}</figcaption>
+    </figure>
+{/snippet}
+
+{#each images as image}
+    {#if image.href}
+        <a href={image.href}>
+            {@render figure(image)}
+        </a>
+    {:else}
+        {@render figure(image)}
+    {/if}
+{/each}
+```
+
+#### {@render ...}
+
+Render a snippet using the `{@render ...}` tag.
+
+```svelte
+{#snippet figure(image)}
+    <figure>
+        <img src={image.src} alt={image.caption} width={image.width} height={image.height} />
+        <figcaption>{image.caption}</figcaption>
+    </figure>
+{/snippet}
+
+{@render figure(image)}
+```
+
+If the snippet is potentially undefined (e.g., an incoming prop), use optional chaining:
+
+```svelte
+{@render children?.()}
+```
+
+### Special Tags
+
+#### {@html ...}
+
+Inject raw HTML into your component.
+
+```svelte
+<script lang="ts">
+    let htmlContent = $state('<b>Amazing Article Content</b>');
+</script>
+
+<article>
+    {@html htmlContent}
+</article>
+```
+
+#### {@const ...}
+
+Define a local constant within template blocks.
+
+```svelte
+<script lang="ts">
+    type Item = {
+        width: number;
+        height: number;
+    };
+
+    const items: Item[] = [
+        { width: 10, height: 5 },
+        { width: 7, height: 3 },
+        { width: 4, height: 8 },
+    ];
+</script>
+
+{#each items as item}
+    {@const area = item.width * item.height}
+    <p>Area: {area}</p>
+{/each}
+```
+
+#### {@attach ...}
+
+Attachments are functions that run in an effect when an element is mounted to the DOM or when state read inside the function updates. They can optionally return a cleanup function.
+
+**Basic Example:**
+
+```svelte
+<script lang="ts">
+    function lifecycle(element) {
+        console.log('Element created');
+        return () => console.log('Element removed');
+    }
+</script>
+
+<div {@attach lifecycle}></div>
+```
+
+**Animation Example:**
+
+```svelte
+<script lang="ts">
+    import { gsap } from 'gsap';
+
+    function animate(element) {
+        gsap.to(element, { rotation: 360, duration: 2 });
+    }
+</script>
+
+<div {@attach animate} class="box"></div>
+```
+
+## Directives
+
+### bind:
+
+Data ordinarily flows down from parent to child. The `bind:` directive allows data to flow the other way, from child to parent.
+
+```svelte
+<script lang="ts">
+    let message = $state('');
+</script>
+
+<input bind:value={message} placeholder="Enter text" />
+<p>You typed: {message}</p>
+```
+
+### style:
+
+The `style:` directive provides a shorthand for setting styles on an element.
+
+```svelte
+<script lang="ts">
+    let darkMode = $state(true);
+</script>
+
+<!-- These are equivalent -->
+<div style:color="red">Static color</div>
+<div style="color: red;">Static color</div>
+
+<!-- Dynamic styles -->
+<div style:background-color={darkMode ? 'black' : 'white'}>Dynamic color</div>
+```
+
+## Special Elements
+
+### <svelte:head>
+
+Insert elements into the document `<head>`, such as `<title>`, `<meta>`, and `<link>` tags. Must be at the top level of a component.
+
+```svelte
+<svelte:head>
+    <title>My Svelte App</title>
+    <meta name="description" content="App description" />
+</svelte:head>
+```
+
+### <svelte:body>
+
+Attach event listeners to `document.body`. Useful for body-specific events like `mouseenter` and `mouseleave`. Must be at the top level of a component.
+
+```svelte
+<script lang="ts">
+    function handleClick() {
+        alert('Body clicked!');
+    }
+</script>
+
+<svelte:body onclick={handleClick} />
+```
+
+## TypeScript
+
+Svelte has built-in TypeScript support. Use `<script lang="ts">` to enable TypeScript in `.svelte` files. You can use type annotations, interfaces, and generics with runes.
+
+```svelte
+<script lang="ts">
+    interface User {
+        name: string;
+        age: number;
+    }
+
+    let user = $state<User>({ name: 'Alice', age: 30 });
+    let { title = 'Default' }: { title?: string } = $props();
+</script>
+
+<p>{user.name} is {user.age} years old</p>
+<h1>{title}</h1>
+```
