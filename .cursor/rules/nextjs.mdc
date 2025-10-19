@@ -13,8 +13,11 @@ alwaysApply: false
     -   `layout.tsx`: Defines the layout for a route and its children.
     -   `loading.tsx`: Displays a loading UI while a route segment is loading.
     -   `error.tsx`: Handles errors within a route segment.
+    -   `not-found.tsx`: Custom 404 UI for a route segment.
     -   `route.ts`: Defines server-side route handlers (API routes).
     -   `[dynamic-segment]`: Dynamic route segments, using brackets.
+    -   `[...slug]`: Catch-all segments. `[[...slug]]`: Optional catch-all.
+    -   `(folder)`: Route groups for organization without affecting URL.
 -   **`lib/`**: Utility functions, helper functions, and third-party integrations.
 -   **`components/`**: Reusable UI components. (`ComponentName.tsx`)
 -   **`hooks/`**: Custom React hooks. (`useHookName.ts`)
@@ -58,12 +61,12 @@ export default function Loading() {
 }
 ```
 
-### Creating an error boundry for /blog (`app/blog/error.tsx`)
+### Creating an error boundary for /blog (`app/blog/error.tsx`)
 
 ```tsx
 'use client'; // Error boundaries must be Client Components
 
-export default function Error({ error, reset }: { error: Error; reset: () => void }) {
+export default function Error({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
     return (
         <div>
             <h2>Something went wrong loading the blog.</h2>
@@ -91,6 +94,15 @@ export async function POST(request: Request) {
     const data = await request.json();
     return NextResponse.json({ message: 'Post created', data }, { status: 201 });
 }
+
+export async function PUT(request: Request) {
+    const data = await request.json();
+    return NextResponse.json({ message: 'Post updated', data });
+}
+
+export async function DELETE() {
+    return NextResponse.json({ message: 'Post deleted' });
+}
 ```
 
 ### Creating a dynamic segment for /blog/slug (`app/blog/[slug]/page.tsx`)
@@ -107,13 +119,19 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         </div>
     );
 }
+
+// Generate static params for static generation
+export async function generateStaticParams() {
+    const posts = await getPosts();
+    return posts.map((post) => ({ slug: post.slug }));
+}
 ```
 
 ## Images, Fonts and SEO
 
 -   **Image optimization:** Use `next/image` component for automatic image optimization.
 -   **Font optimization:** Use `next/font` to optimize font loading and prevent layout shift.
--   **Metadata & SEO:** Use `Metadata` and `Viewport` objects for creating generating metadata.
+-   **Metadata & SEO:** Use `Metadata` and `Viewport` objects for generating metadata.
 
 ```tsx
 import Image from 'next/image';
@@ -195,6 +213,7 @@ export default function CommentForm({ postId }: { postId: string }) {
 
         await fetch('/api/comments', {
             method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ postId, comment }),
         });
 
@@ -238,7 +257,7 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
 -   **Server Components:** Use native `fetch` with caching and revalidation options.
 -   **Client Components:** Use React hooks or libraries like TanStack Query for client-side data fetching.
 -   **Parallel fetching:** Make multiple fetch requests in parallel for better performance.
--   **Caching:** Use `next.revalidate` for time-based revalidation or `cache: 'no-store'` for dynamic data.
+-   **Caching:** Use `{ next: { revalidate: seconds } }` for time-based revalidation or `{ cache: 'no-store' }` for dynamic data.
 
 ### Static Rendering & Dynamic Rendering
 
@@ -258,13 +277,32 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
 
 ```tsx
 export default async function ProductsPage() {
-    // Cached by default, HTML is generating at build time
+    // Cached by default, HTML is generated at build time
     const products = await fetch('https://api.example.com/products').then((res) => res.json());
 
     return (
         <div>
             {products.map((product) => (
                 <div key={product.id}>{product.name}</div>
+            ))}
+        </div>
+    );
+}
+```
+
+### Time-based revalidation in Server Component
+
+```tsx
+export default async function ProductsPage() {
+    // Revalidate every 60 seconds
+    const products = await fetch('https://api.example.com/products', {
+        next: { revalidate: 60 },
+    }).then((res) => res.json());
+
+    return (
+        <div>
+            {products.map((p) => (
+                <div key={p.id}>{p.name}</div>
             ))}
         </div>
     );
@@ -309,10 +347,11 @@ export default async function DashboardPage() {
 'use client';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactNode } from 'react';
 
 const queryClient = new QueryClient();
 
-export default function Providers({ children }) {
+export default function Providers({ children }: { children: ReactNode }) {
     return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
 }
 ```
@@ -362,6 +401,7 @@ export default function CreatePostForm() {
         mutationFn: async (newPost: { title: string }) => {
             const res = await fetch('/api/posts', {
                 method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(newPost),
             });
             return res.json();
@@ -383,6 +423,69 @@ export default function CreatePostForm() {
             <button type='submit' disabled={mutation.isPending}>
                 {mutation.isPending ? 'Creating...' : 'Create Post'}
             </button>
+        </form>
+    );
+}
+```
+
+## Server Actions & Forms
+
+-   **Server Actions:** Functions that run on the server, can be called from Client or Server Components.
+-   **Form handling:** Use Server Actions with forms for progressive enhancement and zero JavaScript.
+-   **Revalidation:** Use `revalidatePath()` or `revalidateTag()` to update cached data after mutations.
+
+### Server Action example (`app/actions.ts`)
+
+```tsx
+'use server';
+
+import { revalidatePath } from 'next/cache';
+
+export async function createPost(formData: FormData) {
+    const title = formData.get('title') as string;
+    const content = formData.get('content') as string;
+
+    await db.post.create({ data: { title, content } });
+
+    revalidatePath('/posts');
+}
+```
+
+### Using Server Action in Server Component (`app/posts/new/page.tsx`)
+
+```tsx
+import { createPost } from '@/app/actions';
+
+export default function NewPostPage() {
+    return (
+        <form action={createPost}>
+            <input name='title' required />
+            <textarea name='content' required />
+            <button type='submit'>Create Post</button>
+        </form>
+    );
+}
+```
+
+### Using Server Action in Client Component with useActionState
+
+```tsx
+'use client';
+
+import { useActionState } from 'react';
+import { createPost } from '@/app/actions';
+
+export default function CreatePostForm() {
+    const [state, formAction, isPending] = useActionState(createPost, null);
+
+    return (
+        <form action={formAction}>
+            <input name='title' required />
+            <textarea name='content' required />
+            <button type='submit' disabled={isPending}>
+                {isPending ? 'Creating...' : 'Create Post'}
+            </button>
+            {state?.error && <p>{state.error}</p>}
         </form>
     );
 }
