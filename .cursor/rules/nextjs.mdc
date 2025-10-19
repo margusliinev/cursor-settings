@@ -6,181 +6,38 @@ alwaysApply: false
 
 # Next.js Rules
 
-## Code Organization and File Naming Conventions
+## Project Structure
 
--   **`app/`**: App Router, contains Routing Files
-    -   `page.tsx`: Represents the UI for a route.
-    -   `layout.tsx`: Defines the layout for a route and its children.
-    -   `loading.tsx`: Displays a loading UI while a route segment is loading.
-    -   `error.tsx`: Handles errors within a route segment.
-    -   `not-found.tsx`: Custom 404 UI for a route segment.
-    -   `route.ts`: Defines server-side route handlers (API routes).
-    -   `[dynamic-segment]`: Dynamic route segments, using brackets.
-    -   `[...slug]`: Catch-all segments. `[[...slug]]`: Optional catch-all.
-    -   `(folder)`: Route groups for organization without affecting URL.
--   **`lib/`**: Utility functions, helper functions, and third-party integrations.
--   **`components/`**: Reusable UI components. (`ComponentName.tsx`)
--   **`hooks/`**: Custom React hooks. (`useHookName.ts`)
--   **`styles/`**: Global styles and CSS modules.
--   **`public/`**: Static assets (images, fonts, etc.).
--   **`types/`**: TypeScript type definitions and interfaces.
+-   **`app/`**: App Router directory containing routing files
+    -   `page.tsx`: UI for a route
+    -   `layout.tsx`: Shared layout for a route and its children
+    -   `loading.tsx`: Loading UI while route segment loads
+    -   `error.tsx`: Error boundary for a route segment
+    -   `not-found.tsx`: Custom 404 UI for a route segment
+    -   `route.ts`: API route handlers (GET, POST, PUT, DELETE)
+    -   `[slug]`: Dynamic route segments
+    -   `[...slug]`: Catch-all segments, `[[...slug]]`: Optional catch-all
+    -   `(folder)`: Route groups (organize without affecting URL)
+-   **`components/`**: Reusable UI components (`ComponentName.tsx`)
+-   **`lib/`**: Utilities, helpers, and third-party integrations
+-   **`hooks/`**: Custom React hooks (`useHookName.ts`)
+-   **`types/`**: TypeScript type definitions
+-   **`public/`**: Static assets (images, fonts, etc.)
 
-## Routing Files with Examples
+## Server vs Client Components
 
-### Creating a page for /blog (`app/blog/page.tsx`)
+-   **Server Components (default):** Render on server, access backend directly, smaller bundle size
+-   **Client Components:** Require `'use client'` directive, enable interactivity and React hooks
 
-```tsx
-export default function Page() {
-    return <h1>Blog</h1>;
-}
-```
+**Use Server Components for:** Data fetching, backend access, reducing bundle size
+**Use Client Components for:** Interactivity (onClick, onChange), hooks (useState, useEffect), browser APIs
 
-### Creating a layout for /blog (`app/blog/layout.tsx`)
+### Server Component
 
 ```tsx
-export default function Layout({ children }: { children: React.ReactNode }) {
-    return (
-        <div>
-            <Header />
-            <main>{children}</main>
-            <Footer />
-        </div>
-    );
-}
-```
-
-### Creating a loading state for /blog (`app/blog/loading.tsx`)
-
-```tsx
-export default function Loading() {
-    return (
-        <div>
-            <p>Loading blog content...</p>
-        </div>
-    );
-}
-```
-
-### Creating an error boundary for /blog (`app/blog/error.tsx`)
-
-```tsx
-'use client'; // Error boundaries must be Client Components
-
-export default function Error({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
-    return (
-        <div>
-            <h2>Something went wrong loading the blog.</h2>
-            <button onClick={reset}>Try again</button>
-        </div>
-    );
-}
-```
-
-### Creating an API route for /blog (`app/blog/route.ts`)
-
-```tsx
-import { NextResponse } from 'next/server';
-
-export async function GET() {
-    const posts = [
-        { id: 1, title: 'Next.js App Router Guide' },
-        { id: 2, title: 'Optimizing with Server Components' },
-    ];
-
-    return NextResponse.json(posts);
-}
-
-export async function POST(request: Request) {
-    const data = await request.json();
-    return NextResponse.json({ message: 'Post created', data }, { status: 201 });
-}
-
-export async function PUT(request: Request) {
-    const data = await request.json();
-    return NextResponse.json({ message: 'Post updated', data });
-}
-
-export async function DELETE() {
-    return NextResponse.json({ message: 'Post deleted' });
-}
-```
-
-### Creating a dynamic segment for /blog/slug (`app/blog/[slug]/page.tsx`)
-
-```tsx
-export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
-    const { slug } = await params;
-    const post = await getPost(slug);
-
-    return (
-        <div>
-            <h1>{post.title}</h1>
-            <p>{post.content}</p>
-        </div>
-    );
-}
-
-// Generate static params for static generation
-export async function generateStaticParams() {
-    const posts = await getPosts();
-    return posts.map((post) => ({ slug: post.slug }));
-}
-```
-
-## Images, Fonts and SEO
-
--   **Image optimization:** Use `next/image` component for automatic image optimization.
--   **Font optimization:** Use `next/font` to optimize font loading and prevent layout shift.
--   **Metadata & SEO:** Use `Metadata` and `Viewport` objects for generating metadata.
-
-```tsx
-import Image from 'next/image';
-
-<Image src='/images/avatar.png' alt='User avatar' width={100} height={100} priority />;
-```
-
-```tsx
-import { Inter } from 'next/font/google';
-const inter = Inter({ subsets: ['latin'] });
-
-export default function Page() {
-    return <p className={inter.className}>Optimized text</p>;
-}
-```
-
-```tsx
-import type { Metadata, Viewport } from 'next';
-
-export const metadata: Metadata = {
-    title: 'My Blog',
-    description: 'My personal blog',
-    keywords: ['Blog', 'Personal'],
-};
-
-export const viewport: Viewport = {
-    colorScheme: 'light',
-    themeColor: '#ffffff',
-    width: 'device-width',
-    initialScale: 1,
-};
-
-// Can be added to either layout.tsx or page.tsx
-// export default function Layout() {}
-// export default function Page() {}
-```
-
-## Server Components VS Client Components
-
--   **Server Components:** Render on the server, can directly access backend resources, reduce client bundle size.
--   **Client Components:** Render on the client, use interactivity, React hooks, and browser APIs. Require `'use client'` directive.
--   **When to use Server Components:** Data fetching, accessing backend resources or env variables, reducing bundle size.
--   **When to use Client Components:** Interactivity (onClick, onChange), using hooks (useState, useEffect), using browser APIs.
-
-### Server Component example (`app/posts/page.tsx`)
-
-```tsx
+// app/posts/page.tsx
 export default async function PostsPage() {
-    const posts = await fetch('https://api.example.com/posts', { cache: 'no-store' }).then((res) => res.json());
+    const posts = await fetch('https://api.example.com/posts').then((res) => res.json());
 
     return (
         <div>
@@ -196,9 +53,10 @@ export default async function PostsPage() {
 }
 ```
 
-### Client Component example (`components/CommentForm.tsx`)
+### Client Component
 
 ```tsx
+// components/CommentForm.tsx
 'use client';
 
 import { useState } from 'react';
@@ -223,18 +81,19 @@ export default function CommentForm({ postId }: { postId: string }) {
 
     return (
         <form onSubmit={handleSubmit}>
-            <textarea value={comment} onChange={(e) => setComment(e.target.value)} />
+            <textarea value={comment} onChange={(e) => setComment(e.target.value)} required />
             <button type='submit' disabled={isSubmitting}>
-                Submit
+                {isSubmitting ? 'Submitting...' : 'Submit'}
             </button>
         </form>
     );
 }
 ```
 
-### Combining Server and Client Components (`app/posts/[id]/page.tsx`)
+### Composing Server and Client Components
 
 ```tsx
+// app/posts/[id]/page.tsx
 import CommentForm from '@/components/CommentForm';
 
 export default async function PostPage({ params }: { params: Promise<{ id: string }> }) {
@@ -245,39 +104,121 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
         <article>
             <h1>{post.title}</h1>
             <p>{post.content}</p>
-
             <CommentForm postId={id} />
         </article>
     );
 }
 ```
 
-## Data Fetching
+## Routing
 
--   **Server Components:** Use native `fetch` with caching and revalidation options.
--   **Client Components:** Use React hooks or libraries like TanStack Query for client-side data fetching.
--   **Parallel fetching:** Make multiple fetch requests in parallel for better performance.
--   **Caching:** Use `{ next: { revalidate: seconds } }` for time-based revalidation or `{ cache: 'no-store' }` for dynamic data.
-
-### Static Rendering & Dynamic Rendering
-
--   **Static Rendering:** HTML is generated at build time and the result is cached and shared across users and requests.
--   **Dynamic Rendering:** HTML is generated at request time. This allows personalized content based on request-time data.
-
--   A component becomes dynamic if it uses the following APIs:
-    -   cookies
-    -   headers
-    -   connection
-    -   draftMode
-    -   searchParams prop
-    -   unstable_noStore
-    -   fetch with { cache: 'no-store' }
-
-### Basic fetch in Server Component (`app/products/page.tsx`)
+### Basic Page
 
 ```tsx
+// app/blog/page.tsx
+export default function BlogPage() {
+    return <h1>Blog</h1>;
+}
+```
+
+### Layout (Shared UI)
+
+```tsx
+// app/blog/layout.tsx
+export default function BlogLayout({ children }: { children: React.ReactNode }) {
+    return (
+        <div>
+            <nav>Blog Navigation</nav>
+            <main>{children}</main>
+        </div>
+    );
+}
+```
+
+### Loading State
+
+```tsx
+// app/blog/loading.tsx
+export default function Loading() {
+    return <div>Loading blog...</div>;
+}
+```
+
+### Error Boundary
+
+```tsx
+// app/blog/error.tsx
+'use client';
+
+export default function Error({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
+    return (
+        <div>
+            <h2>Something went wrong!</h2>
+            <button onClick={reset}>Try again</button>
+        </div>
+    );
+}
+```
+
+### Not Found Page
+
+```tsx
+// app/blog/not-found.tsx
+export default function NotFound() {
+    return <h2>Blog post not found</h2>;
+}
+```
+
+### Dynamic Routes
+
+```tsx
+// app/blog/[slug]/page.tsx
+export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
+    const { slug } = await params;
+    const post = await getPost(slug);
+
+    return (
+        <article>
+            <h1>{post.title}</h1>
+            <p>{post.content}</p>
+        </article>
+    );
+}
+```
+
+### API Routes
+
+```tsx
+// app/api/posts/route.ts
+import { NextResponse } from 'next/server';
+
+export async function GET() {
+    const posts = await db.post.findMany();
+    return NextResponse.json(posts);
+}
+
+export async function POST(request: Request) {
+    const data = await request.json();
+    const post = await db.post.create({ data });
+    return NextResponse.json(post, { status: 201 });
+}
+```
+
+## Data Fetching
+
+### Rendering Strategies
+
+-   **Static (default):** Generated at build time, cached and reused
+-   **Dynamic:** Generated at request time for personalized content
+
+**A route becomes dynamic when using:** `cookies`, `headers`, `connection`, `draftMode`, `searchParams`, `unstable_noStore`, or `fetch` with `{ cache: 'no-store' }`
+
+### Static Data (Cached)
+
+```tsx
+// app/products/page.tsx
 export default async function ProductsPage() {
-    // Cached by default, HTML is generated at build time
+    // Cached by default
     const products = await fetch('https://api.example.com/products').then((res) => res.json());
 
     return (
@@ -290,9 +231,10 @@ export default async function ProductsPage() {
 }
 ```
 
-### Time-based revalidation in Server Component
+### Revalidated Data (ISR)
 
 ```tsx
+// app/products/page.tsx
 export default async function ProductsPage() {
     // Revalidate every 60 seconds
     const products = await fetch('https://api.example.com/products', {
@@ -301,30 +243,33 @@ export default async function ProductsPage() {
 
     return (
         <div>
-            {products.map((p) => (
-                <div key={p.id}>{p.name}</div>
+            {products.map((product) => (
+                <div key={product.id}>{product.name}</div>
             ))}
         </div>
     );
 }
 ```
 
-### Dynamic data (no caching) in Server Component
+### Dynamic Data (No Cache)
 
 ```tsx
+// app/dashboard/page.tsx
 export default async function DashboardPage() {
-    // Always fetch fresh data because fetch with { cache: 'no-store' } is used.
-    const stats = await fetch('https://api.example.com/stats', { cache: 'no-store' }).then((res) => res.json());
+    // Always fresh
+    const stats = await fetch('https://api.example.com/stats', {
+        cache: 'no-store',
+    }).then((res) => res.json());
 
-    return <div>Current users: {stats.activeUsers}</div>;
+    return <div>Active users: {stats.activeUsers}</div>;
 }
 ```
 
-### Parallel data fetching in Server Component
+### Parallel Fetching
 
 ```tsx
+// app/dashboard/page.tsx
 export default async function DashboardPage() {
-    // Fetch multiple resources in parallel
     const [user, posts, comments] = await Promise.all([
         fetch('https://api.example.com/user').then((res) => res.json()),
         fetch('https://api.example.com/posts').then((res) => res.json()),
@@ -341,9 +286,10 @@ export default async function DashboardPage() {
 }
 ```
 
-### TanStack Query setup (`app/providers.tsx`)
+### Client-Side Fetching with TanStack Query
 
 ```tsx
+// app/providers.tsx
 'use client';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -356,9 +302,8 @@ export default function Providers({ children }: { children: ReactNode }) {
 }
 ```
 
-### Using TanStack Query in Client Component (`components/UserProfile.tsx`)
-
 ```tsx
+// components/UserProfile.tsx
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
@@ -368,7 +313,7 @@ export default function UserProfile({ userId }: { userId: string }) {
         queryKey: ['user', userId],
         queryFn: async () => {
             const res = await fetch(`/api/users/${userId}`);
-            if (!res.ok) throw new Error('Failed to fetch user');
+            if (!res.ok) throw new Error('Failed to fetch');
             return res.json();
         },
     });
@@ -385,9 +330,8 @@ export default function UserProfile({ userId }: { userId: string }) {
 }
 ```
 
-### TanStack Query mutation example (`components/CreatePostForm.tsx`)
-
 ```tsx
+// components/CreatePostForm.tsx
 'use client';
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -419,9 +363,9 @@ export default function CreatePostForm() {
                 mutation.mutate({ title });
             }}
         >
-            <input value={title} onChange={(e) => setTitle(e.target.value)} />
+            <input value={title} onChange={(e) => setTitle(e.target.value)} required />
             <button type='submit' disabled={mutation.isPending}>
-                {mutation.isPending ? 'Creating...' : 'Create Post'}
+                {mutation.isPending ? 'Creating...' : 'Create'}
             </button>
         </form>
     );
@@ -430,13 +374,12 @@ export default function CreatePostForm() {
 
 ## Server Actions & Forms
 
--   **Server Actions:** Functions that run on the server, can be called from Client or Server Components.
--   **Form handling:** Use Server Actions with forms for progressive enhancement and zero JavaScript.
--   **Revalidation:** Use `revalidatePath()` or `revalidateTag()` to update cached data after mutations.
+Server Actions enable server-side mutations with progressive enhancement (works without JavaScript).
 
-### Server Action example (`app/actions.ts`)
+### Basic Server Action
 
 ```tsx
+// app/actions.ts
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -451,9 +394,10 @@ export async function createPost(formData: FormData) {
 }
 ```
 
-### Using Server Action in Server Component (`app/posts/new/page.tsx`)
+### Server Action in Server Component
 
 ```tsx
+// app/posts/new/page.tsx
 import { createPost } from '@/app/actions';
 
 export default function NewPostPage() {
@@ -467,9 +411,10 @@ export default function NewPostPage() {
 }
 ```
 
-### Using Server Action in Client Component with useActionState
+### Server Action in Client Component
 
 ```tsx
+// components/CreatePostForm.tsx
 'use client';
 
 import { useActionState } from 'react';
@@ -487,6 +432,47 @@ export default function CreatePostForm() {
             </button>
             {state?.error && <p>{state.error}</p>}
         </form>
+    );
+}
+```
+
+## Metadata & SEO
+
+```tsx
+// app/blog/layout.tsx or page.tsx
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+    title: 'My Blog',
+    description: 'A blog about web development',
+    keywords: ['Next.js', 'React', 'Web Development'],
+};
+```
+
+## Images & Fonts
+
+### Image Optimization
+
+```tsx
+import Image from 'next/image';
+
+export default function Avatar() {
+    return <Image src='/avatar.png' alt='User avatar' width={100} height={100} priority />;
+}
+```
+
+### Font Optimization
+
+```tsx
+import { Inter } from 'next/font/google';
+
+const inter = Inter({ subsets: ['latin'] });
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+    return (
+        <html lang='en' className={inter.className}>
+            <body>{children}</body>
+        </html>
     );
 }
 ```
