@@ -17,7 +17,6 @@
     "explorer.compactFolders": false,
 
     // Files
-    "files.associations": { "*.css": "tailwindcss" },
     "files.trimTrailingWhitespace": true,
     "files.trimFinalNewlines": true,
     "files.insertFinalNewline": true,
@@ -50,7 +49,7 @@
     "editor.renderWhitespace": "none",
     "editor.cursorBlinking": "solid",
     "editor.wordWrap": "on",
-    "editor.unicodeHighlight.allowedCharacters": { "‑": true, "–": true, "’": true },
+    "editor.unicodeHighlight.allowedCharacters": { "–": true, "‑": true, "’": true },
     "editor.quickSuggestions": { "strings": true },
     "editor.acceptSuggestionOnCommitCharacter": false,
     "editor.renderControlCharacters": false,
@@ -69,6 +68,10 @@
     // Language Settings
     "javascript.updateImportsOnFileMove.enabled": "always",
     "typescript.updateImportsOnFileMove.enabled": "always",
+    "svelte.enable-ts-plugin": true,
+
+    // Material Icon Theme
+    "material-icon-theme.folders.theme": "classic",
 
     // Prettier
     "prettier.trailingComma": "all",
@@ -81,6 +84,8 @@
     // ESlint
     "eslint.rules.customizations": [{ "rule": "*", "severity": "warn" }],
 
-    // Material Icon Theme
-    "material-icon-theme.folders.theme": "classic"
+    // Cursor
+    "cursor.composer.usageSummaryDisplay": "always",
+    "cursor.composer.shouldChimeAfterChatFinishes": true,
+    "cursor.chat.terminalShowHoverHint": false
 }
