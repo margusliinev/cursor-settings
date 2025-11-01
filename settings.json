@@ -42,6 +42,7 @@
     "terminal.integrated.fontSize": 16,
 
     // Editor
+    "editor.codeActionsOnSave": { "source.fixAll.eslint": "explicit" },
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.fontFamily": "JetBrains Mono",
     "editor.renderLineHighlight": "none",
@@ -83,9 +84,9 @@
 
     // ESlint
     "eslint.rules.customizations": [{ "rule": "*", "severity": "warn" }],
+    "eslint.validate": ["javascript", "typescript", "svelte"],
 
     // Cursor
-    "cursor.composer.usageSummaryDisplay": "always",
     "cursor.composer.shouldChimeAfterChatFinishes": true,
-    "cursor.chat.terminalShowHoverHint": false
+    "cursor.composer.usageSummaryDisplay": "always"
 }
