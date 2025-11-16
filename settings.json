@@ -69,7 +69,6 @@
     // Language Settings
     "javascript.updateImportsOnFileMove.enabled": "always",
     "typescript.updateImportsOnFileMove.enabled": "always",
-    "svelte.enable-ts-plugin": true,
 
     // Material Icon Theme
     "material-icon-theme.folders.theme": "classic",
@@ -84,7 +83,7 @@
 
     // ESlint
     "eslint.rules.customizations": [{ "rule": "*", "severity": "warn" }],
-    "eslint.validate": ["javascript", "typescript", "svelte"],
+    "eslint.validate": ["javascript", "typescript", "javascriptreact", "typescriptreact"],
 
     // Cursor
     "cursor.composer.shouldChimeAfterChatFinishes": true,

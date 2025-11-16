@@ -113,5 +113,17 @@
         "key": "cmd+l",
         "command": "-composer.sendToAgent",
         "when": "editorHasPromptBar && editorPromptBarFocused"
+    },
+    {
+        "key": "cmd+r cmd+s",
+        "command": "-workbench.action.openGlobalKeybindings"
+    },
+    {
+        "key": "cmd+r cmd+s",
+        "command": "workbench.action.files.saveWithoutFormatting"
+    },
+    {
+        "key": "cmd+r s",
+        "command": "-workbench.action.files.saveWithoutFormatting"
     }
 ]
