@@ -22,7 +22,7 @@
     "files.insertFinalNewline": true,
 
     // Workbench
-    "workbench.tree.indent": 16,
+    "workbench.tree.indent": 14,
     "workbench.tips.enabled": false,
     "workbench.statusBar.visible": true,
     "workbench.editor.enablePreview": false,
@@ -39,7 +39,7 @@
     "terminal.integrated.cursorStyle": "line",
     "terminal.integrated.cursorBlinking": false,
     "terminal.integrated.cursorWidth": 2,
-    "terminal.integrated.fontSize": 16,
+    "terminal.integrated.fontSize": 14,
 
     // Editor
     "editor.codeActionsOnSave": { "source.fixAll.eslint": "explicit" },
@@ -64,11 +64,12 @@
     "editor.multiCursorLimit": 30000,
     "editor.lineHeight": 1.75,
     "editor.cursorWidth": 2,
-    "editor.fontSize": 16,
+    "editor.fontSize": 14,
 
     // Language Settings
     "javascript.updateImportsOnFileMove.enabled": "always",
     "typescript.updateImportsOnFileMove.enabled": "always",
+    "svelte.enable-ts-plugin": true,
 
     // Material Icon Theme
     "material-icon-theme.folders.theme": "classic",
@@ -83,7 +84,7 @@
 
     // ESlint
     "eslint.rules.customizations": [{ "rule": "*", "severity": "warn" }],
-    "eslint.validate": ["javascript", "typescript", "javascriptreact", "typescriptreact"],
+    "eslint.validate": ["javascript", "typescript", "javascriptreact", "typescriptreact", "svelte"],
 
     // Cursor
     "cursor.composer.shouldChimeAfterChatFinishes": true,
