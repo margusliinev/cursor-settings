@@ -87,6 +87,7 @@
     "eslint.validate": ["javascript", "typescript", "javascriptreact", "typescriptreact", "svelte"],
 
     // Cursor
+    "cursor.composer.usageSummaryDisplay": "always",
     "cursor.composer.shouldChimeAfterChatFinishes": true,
-    "cursor.composer.usageSummaryDisplay": "always"
+    "cursor.composer.showSuggestedFiles": true
 }
