@@ -20,6 +20,12 @@
     "files.trimTrailingWhitespace": true,
     "files.trimFinalNewlines": true,
     "files.insertFinalNewline": true,
+    "files.readonlyInclude": { "**/routeTree.gen.ts": true },
+    "files.watcherExclude": { "**/routeTree.gen.ts": true },
+    "files.associations": { "*.css": "tailwindcss" },
+
+    // Search
+    "search.exclude": { "**/routeTree.gen.ts": true },
 
     // Workbench
     "workbench.tree.indent": 14,
@@ -69,7 +75,6 @@
     // Language Settings
     "javascript.updateImportsOnFileMove.enabled": "always",
     "typescript.updateImportsOnFileMove.enabled": "always",
-    "svelte.enable-ts-plugin": true,
 
     // Material Icon Theme
     "material-icon-theme.folders.theme": "classic",
@@ -81,6 +86,10 @@
     "prettier.semi": true,
     "prettier.printWidth": 140,
     "prettier.tabWidth": 4,
+
+    // ESlint
+    "eslint.rules.customizations": [{ "rule": "*", "severity": "warn" }],
+    "eslint.validate": ["javascript", "typescript", "javascriptreact", "typescriptreact"],
 
     // Cursor
     "cursor.composer.usageSummaryDisplay": "always",
