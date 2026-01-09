@@ -1,54 +1,35 @@
 {
-    // Window
     "window.confirmSaveUntitledWorkspace": false,
-
-    // Security
     "security.workspace.trust.enabled": true,
-
-    // Extensions
     "extensions.ignoreRecommendations": true,
-
-    // Breadcrumbs
     "breadcrumbs.enabled": false,
 
-    // Explorer
     "explorer.confirmDragAndDrop": false,
     "explorer.confirmDelete": false,
     "explorer.compactFolders": false,
 
-    // Files
     "files.trimTrailingWhitespace": true,
     "files.trimFinalNewlines": true,
     "files.insertFinalNewline": true,
-    "files.readonlyInclude": { "**/routeTree.gen.ts": true },
-    "files.watcherExclude": { "**/routeTree.gen.ts": true },
-    "files.associations": { "*.css": "tailwindcss" },
 
-    // Search
-    "search.exclude": { "**/routeTree.gen.ts": true },
-
-    // Workbench
     "workbench.tree.indent": 14,
     "workbench.tips.enabled": false,
     "workbench.statusBar.visible": true,
     "workbench.editor.enablePreview": false,
     "workbench.activityBar.orientation": "vertical",
     "workbench.colorTheme": "Default Dark Modern",
-    "workbench.iconTheme": "material-icon-theme",
+    "workbench.iconTheme": "vscode-icons",
     "workbench.editor.empty.hint": "hidden",
     "workbench.settings.editor": "json",
     "workbench.startupEditor": "none",
     "workbench.reduceMotion": "on",
 
-    // Terminal
     "terminal.integrated.fontFamily": "JetBrains Mono",
     "terminal.integrated.cursorStyle": "line",
     "terminal.integrated.cursorBlinking": false,
     "terminal.integrated.cursorWidth": 2,
     "terminal.integrated.fontSize": 14,
 
-    // Editor
-    "editor.codeActionsOnSave": { "source.fixAll.eslint": "explicit" },
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.fontFamily": "JetBrains Mono",
     "editor.renderLineHighlight": "none",
@@ -72,14 +53,13 @@
     "editor.cursorWidth": 2,
     "editor.fontSize": 14,
 
-    // Language Settings
     "javascript.updateImportsOnFileMove.enabled": "always",
     "typescript.updateImportsOnFileMove.enabled": "always",
+    "svelte.enable-ts-plugin": true,
 
-    // Material Icon Theme
-    "material-icon-theme.folders.theme": "classic",
+    "vsicons.presets.foldersAllDefaultIcon": true,
+    "vsicons.dontShowNewVersionMessage": true,
 
-    // Prettier
     "prettier.trailingComma": "all",
     "prettier.jsxSingleQuote": true,
     "prettier.singleQuote": true,
@@ -87,11 +67,6 @@
     "prettier.printWidth": 140,
     "prettier.tabWidth": 4,
 
-    // ESlint
-    "eslint.rules.customizations": [{ "rule": "*", "severity": "warn" }],
-    "eslint.validate": ["javascript", "typescript", "javascriptreact", "typescriptreact"],
-
-    // Cursor
     "cursor.composer.usageSummaryDisplay": "always",
     "cursor.composer.shouldChimeAfterChatFinishes": true,
     "cursor.composer.showSuggestedFiles": true
