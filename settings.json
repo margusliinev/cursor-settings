@@ -11,6 +11,9 @@
     "files.trimTrailingWhitespace": true,
     "files.trimFinalNewlines": true,
     "files.insertFinalNewline": true,
+    "files.readonlyInclude": { "**/routeTree.gen.ts": true },
+    "files.watcherExclude": { "**/routeTree.gen.ts": true },
+    "search.exclude": { "**/routeTree.gen.ts": true },
 
     "workbench.tree.indent": 14,
     "workbench.tips.enabled": false,
@@ -33,6 +36,7 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.fontFamily": "JetBrains Mono",
     "editor.renderLineHighlight": "none",
+    "editor.wordBasedSuggestions": "off",
     "editor.lightbulb.enabled": "off",
     "editor.renderWhitespace": "none",
     "editor.cursorBlinking": "solid",
@@ -59,6 +63,9 @@
 
     "vsicons.presets.foldersAllDefaultIcon": true,
     "vsicons.dontShowNewVersionMessage": true,
+
+    "eslint.rules.customizations": [{ "rule": "*", "severity": "warn" }],
+    "eslint.validate": ["javascript", "typescript", "javascriptreact", "typescriptreact", "svelte"],
 
     "prettier.trailingComma": "all",
     "prettier.jsxSingleQuote": true,
