@@ -5,15 +5,14 @@
     "breadcrumbs.enabled": false,
 
     "explorer.confirmDragAndDrop": false,
-    "explorer.confirmDelete": false,
     "explorer.compactFolders": false,
+    "explorer.confirmDelete": false,
 
-    "files.trimTrailingWhitespace": true,
-    "files.trimFinalNewlines": true,
-    "files.insertFinalNewline": true,
     "files.readonlyInclude": { "**/routeTree.gen.ts": true },
     "files.watcherExclude": { "**/routeTree.gen.ts": true },
-    "search.exclude": { "**/routeTree.gen.ts": true },
+    "files.trimTrailingWhitespace": true,
+    "files.insertFinalNewline": true,
+    "files.trimFinalNewlines": true,
 
     "workbench.tree.indent": 14,
     "workbench.tips.enabled": false,
@@ -30,17 +29,18 @@
     "terminal.integrated.fontFamily": "JetBrains Mono",
     "terminal.integrated.cursorStyle": "line",
     "terminal.integrated.cursorBlinking": false,
+    "terminal.integrated.initialHint": false,
     "terminal.integrated.cursorWidth": 2,
     "terminal.integrated.fontSize": 14,
 
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.fontFamily": "JetBrains Mono",
     "editor.renderLineHighlight": "none",
-    "editor.wordBasedSuggestions": "off",
     "editor.lightbulb.enabled": "off",
     "editor.renderWhitespace": "none",
     "editor.cursorBlinking": "solid",
     "editor.wordWrap": "on",
+
     "editor.unicodeHighlight.allowedCharacters": { "–": true, "‑": true, "’": true },
     "editor.quickSuggestions": { "strings": true },
     "editor.acceptSuggestionOnCommitCharacter": false,
@@ -52,13 +52,15 @@
     "editor.fontLigatures": true,
     "editor.formatOnPaste": true,
     "editor.formatOnSave": true,
+
     "editor.multiCursorLimit": 30000,
     "editor.lineHeight": 1.75,
     "editor.cursorWidth": 2,
     "editor.fontSize": 14,
 
-    "javascript.updateImportsOnFileMove.enabled": "always",
+    "typescript.preferences.preferTypeOnlyAutoImports": true,
     "typescript.updateImportsOnFileMove.enabled": "always",
+    "javascript.updateImportsOnFileMove.enabled": "always",
     "svelte.enable-ts-plugin": true,
 
     "vsicons.presets.foldersAllDefaultIcon": true,
@@ -74,7 +76,6 @@
     "prettier.printWidth": 140,
     "prettier.tabWidth": 4,
 
-    "cursor.composer.usageSummaryDisplay": "always",
     "cursor.composer.shouldChimeAfterChatFinishes": true,
-    "cursor.composer.showSuggestedFiles": true
+    "cursor.composer.usageSummaryDisplay": "always"
 }
